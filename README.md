@@ -1,22 +1,27 @@
+<p align="center">
+  <img src="public/logo.png" alt="StadiumPulse logo" width="96" />
+</p>
+
 # ⚡ StadiumPulse
 
 **GenAI incident triage copilot for FIFA World Cup 2026 venue operations.**
 
-> Fans, volunteers, and staff report problems in ANY language, in their own words; Gemini converts each report into a validated, structured incident; a deterministic engine scores priority and updates a live zone heat map for the ops team.
+> Fans, volunteers, and staff report problems in ANY language — typed or **spoken** 🎤. Gemini converts each report into a validated, structured incident; a deterministic engine scores priority and lights up a live, clickable stadium map for the ops team.
 
-**🔗 Live URL:** `[YOUR_VERCEL_URL]`
-**📂 Repo:** `[YOUR_GITHUB_URL]`
+**🔗 Live (GCP Cloud Run):** https://stadiumpulse-580541627338.us-central1.run.app
+**🔗 Live (Vercel backup):** https://stadiumpulse-nine.vercel.app
 
 ---
 
 ## 30-Second Demo
 
-1. Open the live URL → you land on the **Report** page with 14 pre-loaded demo incidents.
-2. Click the **"Hindi"** example chip → textarea fills with `"Gate B ke paas bahut bheed hai..."`.
-3. Click **"Send report"** → watch the AI triage it in ~2 seconds. A success card shows category, severity, zone, and recommended action.
-4. Click **"View in Ops Dashboard →"** → the new incident appears at the top of the priority queue with a cyan glow animation. The zone heat grid updates.
-5. Click **"Simulate matchday"** → 5 more incidents flood in. Watch the heat map light up.
-6. Navigate to **Analytics** → see category breakdown, zone severity, resolution rate donut chart.
+1. Open the live URL → tap the **🇮🇳 Hindi** example chip → **Send report**.
+2. The AI answers in plain language — *"✓ Help is on the way"* — with the dispatch action. (Or tap the mic and just say it.)
+3. Open **Ops Command** → the incident tops the priority queue with a cyan glow; the SVG stadium map updates its heat.
+4. **Click a zone on the stadium map** → the queue filters to that zone. Click again to clear.
+5. Hit **⚡ Simulate matchday** → 5 incidents flood in; watch the map light up.
+6. Back on **Report**, ask *"Need directions instead?"* a wayfinding question — in any language (second Gemini use case).
+7. Open **Analytics** → category breakdown, zone severity, resolution-rate donut.
 
 ---
 
@@ -30,14 +35,14 @@
 
 | Challenge Keyword | StadiumPulse Feature | Where |
 |---|---|---|
-| **Multilingual assistance** | Any-language report intake, Gemini language detection + English summary | `src/lib/ai.ts`, `/` |
+| **Multilingual assistance** | Any-language report intake (typed or voice), Gemini language detection + English summary | `src/lib/ai.ts`, `src/components/ReportForm.tsx` |
 | **Crowd management** | Crowding category, severity rubric, zone heat map | `src/lib/engine.ts`, `/ops` |
 | **Operational intelligence** | Structured triage of fuzzy reports into ranked ops queue + analytics | `/api/triage`, `/ops`, `/stats` |
 | **Real-time decision support** | Deterministic priority scoring + recommended action + trend analytics | `src/lib/engine.ts`, `/stats` |
 | **Accessibility (as a service)** | Accessibility incident category routed at high weight | `src/lib/schema.ts` |
 | **Accessibility (of the app)** | WCAG-minded UI: labels, keyboard, contrast, aria-live, reduced motion | All components |
 | **Sustainability** | Sustainability incident category for waste/water/energy issues | `src/lib/schema.ts` |
-| **Navigation** | Zone-based heat map guides ops team to problem areas | `/ops` |
+| **Navigation** | **Ask StadiumPulse** — GenAI wayfinding Q&A for fans in any language; clickable stadium map guides ops to problem zones | `/api/assist`, `src/components/AskAssistant.tsx`, `/ops` |
 | **Transportation** | Transport incident category with priority scoring | `src/lib/schema.ts` |
 
 **Coverage: 9/9 challenge keywords.**
@@ -94,7 +99,7 @@ npm run dev
 |---------|-------------|
 | `npm run dev` | Start dev server (Turbopack) |
 | `npm run build` | Production build |
-| `npm test` | Run 64 tests (vitest) |
+| `npm test` | Run 70 tests (vitest) |
 | `npm run lint` | ESLint check |
 
 ---
@@ -106,14 +111,15 @@ npm run dev
 | API key isolation | Server-only `GEMINI_API_KEY` via `.env.local`, never in client code |
 | Input validation | Zod schemas on all boundaries; body size capped at 2 KB |
 | Rate limiting | Token bucket: 10 req/min/IP (per-instance; resets on cold start) |
-| Security headers | `X-Frame-Options: DENY`, `HSTS`, `nosniff`, `Permissions-Policy`, basic CSP |
+| Security headers | `X-Frame-Options: DENY`, `HSTS`, `nosniff`, `Permissions-Policy` (mic same-origin only), hardened CSP |
+| CSP | Drops `unsafe-eval` in production; `object-src 'none'`, `base-uri`, `form-action`, `frame-ancestors` locked down |
 | Request tracing | `X-Request-Id` UUID on every API response |
 | AI output validation | Zod strict validation + self-correcting retry + deterministic fallback |
-| XSS prevention | No `dangerouslySetInnerHTML` — all AI text renders as React text nodes |
+| XSS prevention | No `dangerouslySetInnerHTML` on dynamic data — all AI and user text renders as React text nodes |
 
 **Known limitations (honest):**
 - Per-instance rate limiter resets on serverless cold start. Production would use Redis.
-- CSP is permissive (`unsafe-eval`, `unsafe-inline`) due to Next.js hydration requirements.
+- CSP still allows `unsafe-inline` (Next.js bootstrap); a nonce-based CSP is a stretch goal.
 - No authentication — ops dashboard is publicly accessible. Production would add auth.
 - LocalStorage persistence — no server database. Data is per-browser, capped at 200 incidents.
 
@@ -123,7 +129,7 @@ See [SECURITY.md](SECURITY.md) for full security policy.
 
 ## Testing
 
-**64 tests across 4 test suites:**
+**70 tests across 5 test suites:**
 
 | Suite | Tests | Covers |
 |-------|-------|--------|
@@ -131,6 +137,7 @@ See [SECURITY.md](SECURITY.md) for full security policy.
 | `schema.test.ts` | 24 | Valid/invalid TriageResult, severity 0/6 rejected, NaN confidence, unknown zone, strict mode (extra fields rejected), Incident schema, Request schema, sustainability category |
 | `cache.test.ts` | 11 | Hit/miss, TTL expiry, LRU eviction at 100, request coalescing, key normalization |
 | `ratelimit.test.ts` | 6 | 10 allowed / 11th rejected, independent IPs, token refill after window |
+| `store.test.ts` | 6 | Persistence, cap eviction (open survive over resolved), corrupted-localStorage recovery, snapshot/subscriber reactivity |
 
 ```bash
 npm test
@@ -159,7 +166,7 @@ npm test
 - **Cache:** LRU cache (100 entries, 10-min TTL) prevents duplicate Gemini calls.
 - **Request coalescing:** Concurrent identical requests share one upstream Gemini call.
 - **Zero heavy deps:** No chart libs (CSS grid heat map, SVG donut), no state libs, no DB drivers.
-- **Static prerendering:** All pages except `/api/triage` are statically generated at build time.
+- **Static prerendering:** All pages except the API routes (`/api/triage`, `/api/assist`) are statically generated at build time.
 - **Tailwind:** Utility CSS, tree-shaken in production — minimal CSS payload.
 
 ---
@@ -171,8 +178,8 @@ npm test
 | localStorage (200 cap) | PostgreSQL / Firestore with real-time subscriptions |
 | Per-instance rate limiter | Redis / Cloudflare rate limiting |
 | No authentication | Firebase Auth with role-based access (fan/volunteer/staff) |
-| Permissive CSP | Nonce-based CSP with strict dynamic |
-| Polling for updates | WebSocket / Server-Sent Events for live push |
+| CSP with `unsafe-inline` | Nonce-based CSP with strict dynamic |
+| Cross-tab sync only (storage events, instant) | WebSocket / SSE for multi-device live push |
 | Single venue | Multi-venue support with venue selector |
 
 ---
@@ -187,7 +194,7 @@ npm test
 | AI | Google Gemini 2.5 Flash via `@google/genai` |
 | Validation | Zod 4 |
 | Testing | Vitest 4 |
-| Deploy | Vercel |
+| Deploy | GCP Cloud Run (Docker, standalone output) + Vercel |
 
 ---
 

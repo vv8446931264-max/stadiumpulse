@@ -41,8 +41,8 @@
 ### Weaknesses (Honest)
 - **No server persistence** — localStorage only, per-browser, 200 cap.
 - **No authentication** — ops dashboard is publicly accessible.
-- **No real-time push** — polling every 2–5 seconds instead of WebSocket/SSE.
-- **CSP is permissive** — Next.js requires unsafe-eval/unsafe-inline for hydration.
+- **Cross-tab sync only** — storage events make same-browser updates instant, but true multi-device push needs server persistence + WebSocket/SSE.
+- **CSP allows `unsafe-inline`** — Next.js bootstrap requirement; `unsafe-eval` is dev-only now (dropped in production).
 
 ## Technical Blog Outline (for S9)
 

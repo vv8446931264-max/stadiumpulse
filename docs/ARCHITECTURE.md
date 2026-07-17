@@ -45,17 +45,27 @@
 4. Response              ──►  { ok: true, result: TriageResult, meta }
                                │
                                ▼
-5. Client store          ──►  store.ts
+5. Client store          ──►  store.ts + useIncidents.ts
    │                           │
    ├─ computePriority()        ├─ engine.ts (pure functions)
-   ├─ addIncident()            ├─ localStorage write
+   ├─ addIncident()            ├─ localStorage write → notify()
    ▼                           ▼
-6. Dashboard updates     ──►  ops/page.tsx
+6. Dashboard updates     ──►  ops/page.tsx (useSyncExternalStore)
    │                           │
    ├─ IncidentQueue           ├─ Sorted by priority desc
-   ├─ ZoneHeatGrid            ├─ Heat: sum(severity) per zone
+   ├─ StadiumMap (SVG)        ├─ Heat: sum(severity) per zone;
+   │                          │   zones clickable → filter queue
    └─ aria-live announce      └─ "New {category} incident..."
 ```
+
+State is reactive, not polled: `store.ts` exposes subscribe/snapshot for
+`useSyncExternalStore`. Same-tab writes notify subscribers synchronously;
+other tabs update instantly via the browser's `storage` event. The server
+snapshot is an empty list, which keeps SSR hydration deterministic.
+
+A second GenAI surface, `/api/assist` (fan navigation Q&A in any language),
+follows the same trust boundary: Gemini → strict Zod validation →
+deterministic fallback, never a 500.
 
 ## AI Trust Boundary
 

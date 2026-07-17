@@ -140,3 +140,20 @@ export type TriageRequest = z.infer<typeof TriageRequestSchema>;
 
 /** Heat level for a zone based on cumulative severity of open incidents. */
 export type HeatLevel = "calm" | "busy" | "high" | "critical";
+
+/** Request schema for the fan navigation assistant. */
+export const AssistRequestSchema = z.object({
+  question: z.string().trim().min(1).max(300),
+  zone: z.enum([...ZONES] as const).optional(),
+});
+
+/** Response schema for the fan navigation assistant — strict, like triage. */
+export const AssistResultSchema = z
+  .object({
+    answer: z.string().min(1).max(400),
+    detected_language: z.string().min(1).max(40),
+  })
+  .strict();
+
+/** Inferred TypeScript type for an assistant answer. */
+export type AssistResult = z.infer<typeof AssistResultSchema>;

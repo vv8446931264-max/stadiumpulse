@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import Image from "next/image";
 import ReportForm from "@/components/ReportForm";
+import AskAssistant from "@/components/AskAssistant";
 import type { TriageResult, TriageMeta, Incident } from "@/lib/schema";
 import { addIncident } from "@/lib/store";
 import { computePriority, countOpenInZone } from "@/lib/engine";
@@ -91,6 +92,11 @@ export default function HomePage() {
 
           <div className="bg-[#121A2B]/90 backdrop-blur-sm rounded-xl border border-[#1e293b] p-6 sm:p-8 shadow-2xl shadow-[#22D3EE]/10">
             <ReportForm onTriageComplete={handleTriageComplete} />
+          </div>
+
+          {/* Fan navigation assistant — second GenAI use case */}
+          <div className="mt-4">
+            <AskAssistant />
           </div>
 
           {/* Live-ops stat chips — proof, after the action */}

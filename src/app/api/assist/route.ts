@@ -76,7 +76,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       request.headers.get("x-real-ip") ??
       "unknown";
 
-    const rateCheck = checkRateLimit(ip);
+    // Separate keyspace from /api/triage so demoing both features
+    // doesn't drain one shared 10/min budget.
+    const rateCheck = checkRateLimit(`assist:${ip}`);
     if (!rateCheck.allowed) {
       console.warn(`[api/assist] Rate limited IP: ${ip}`);
       return NextResponse.json(

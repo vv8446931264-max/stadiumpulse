@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef, useSyncExternalStore } from "react";
+import { useState, useRef, useEffect, useSyncExternalStore } from "react";
 import type { TriageResult, TriageMeta, Zone } from "@/lib/schema";
-import { ZONES, ZONE_LABELS } from "@/lib/schema";
+import { ZONES, ZONE_LABELS, CATEGORY_LABELS } from "@/lib/schema";
 
 const noopSubscribe = () => () => {};
 /** True when the browser exposes the Web Speech API (client-only, static). */
@@ -31,10 +31,10 @@ type SpeechCtor = new () => SpeechRecognitionLike;
 
 /** Example chips in different languages for quick submission. */
 const EXAMPLE_CHIPS = [
-  { text: "Gate B ke paas bahut bheed hai, log dhakka de rahe hain", lang: "Hindi" },
-  { text: "La rampa para sillas de ruedas del lado este está bloqueada", lang: "Spanish" },
-  { text: "فقدت ابني بالقرب من منطقة المشجعين", lang: "Arabic" },
-  { text: "Long queue at transit hub, buses not arriving", lang: "English" },
+  { text: "Gate B ke paas bahut bheed hai, log dhakka de rahe hain", lang: "Hindi", flag: "🇮🇳" },
+  { text: "La rampa para sillas de ruedas del lado este está bloqueada", lang: "Spanish", flag: "🇲🇽" },
+  { text: "فقدت ابني بالقرب من منطقة المشجعين", lang: "Arabic", flag: "🇸🇦" },
+  { text: "Long queue at transit hub, buses not arriving", lang: "English", flag: "🇺🇸" },
 ] as const;
 
 interface ReportFormProps {
@@ -61,6 +61,14 @@ export default function ReportForm({ onTriageComplete }: ReportFormProps) {
 
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const resultRef = useRef<HTMLDivElement | null>(null);
+
+  // Bring the outcome into view — on mobile it renders below the button.
+  useEffect(() => {
+    if (success || error) {
+      resultRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [success, error]);
   // Hydration-safe: false on server, real value after mount.
   const voiceSupported = useSyncExternalStore(
     noopSubscribe,
@@ -153,7 +161,7 @@ export default function ReportForm({ onTriageComplete }: ReportFormProps) {
           htmlFor="report-text"
           className="block text-sm font-medium text-[#E6EDF7] mb-2"
         >
-          Describe the incident
+          What&apos;s happening?
         </label>
         <div className="relative">
           <textarea
@@ -166,7 +174,7 @@ export default function ReportForm({ onTriageComplete }: ReportFormProps) {
             }}
             maxLength={500}
             rows={4}
-            placeholder="Write or speak in your own language — Hindi, Spanish, Arabic, English, or any other..."
+            placeholder="Type or tap the mic — any language works"
             className="w-full rounded-lg bg-[#0B1220] border border-[#1e293b] text-[#E6EDF7] placeholder-[#93A4BF]/60 px-4 py-3 pr-14 text-sm focus:outline-none focus:ring-2 focus:ring-[#22D3EE] focus:border-transparent resize-none transition-shadow"
             aria-describedby="char-counter"
             disabled={isLoading}
@@ -220,7 +228,10 @@ export default function ReportForm({ onTriageComplete }: ReportFormProps) {
           htmlFor="report-zone"
           className="block text-sm font-medium text-[#E6EDF7] mb-2"
         >
-          Zone <span className="text-[#93A4BF] font-normal">(optional)</span>
+          Where?{" "}
+          <span className="text-[#93A4BF] font-normal">
+            (optional — the AI can detect it)
+          </span>
         </label>
         <select
           id="report-zone"
@@ -240,7 +251,9 @@ export default function ReportForm({ onTriageComplete }: ReportFormProps) {
 
       {/* Example chips */}
       <div>
-        <p className="text-xs text-[#93A4BF] mb-2">Try an example:</p>
+        <p className="text-xs text-[#93A4BF] mb-2">
+          No time to type? Tap an example:
+        </p>
         <div className="flex flex-wrap gap-2">
           {EXAMPLE_CHIPS.map((chip) => (
             <button
@@ -249,9 +262,9 @@ export default function ReportForm({ onTriageComplete }: ReportFormProps) {
               onClick={() => handleChipClick(chip.text)}
               className="px-3 py-1.5 rounded-full text-xs bg-[#1e293b] text-[#93A4BF] hover:text-[#22D3EE] hover:bg-[#22D3EE]/10 border border-[#1e293b] hover:border-[#22D3EE]/30 transition-all"
               disabled={isLoading}
-              aria-label={`Use ${chip.lang} example: ${chip.text.slice(0, 30)}...`}
+              aria-label={`Fill the form with a ${chip.lang} example report`}
             >
-              {chip.lang}
+              <span aria-hidden="true">{chip.flag}</span> {chip.lang}
             </button>
           ))}
         </div>
@@ -270,6 +283,7 @@ export default function ReportForm({ onTriageComplete }: ReportFormProps) {
       {/* Error state */}
       {error && (
         <div
+          ref={resultRef}
           role="alert"
           className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm"
         >
@@ -277,51 +291,55 @@ export default function ReportForm({ onTriageComplete }: ReportFormProps) {
         </div>
       )}
 
-      {/* Success state */}
-      {success && (
-        <div
-          role="status"
-          className="p-4 rounded-lg bg-[#22D3EE]/10 border border-[#22D3EE]/30 space-y-3"
-        >
-          <p className="text-[#22D3EE] font-semibold text-sm">
-            ✓ Report triaged — priority {success.result.severity * 15 + 5}.
-            Ops team notified.
-          </p>
-          <div className="grid grid-cols-2 gap-2 text-xs text-[#93A4BF]">
-            <div>
-              <span className="text-[#E6EDF7]">Category:</span>{" "}
-              {success.result.category}
-            </div>
-            <div>
-              <span className="text-[#E6EDF7]">Severity:</span>{" "}
-              {success.result.severity}/5
-            </div>
-            <div>
-              <span className="text-[#E6EDF7]">Zone:</span>{" "}
-              {success.result.zone}
-            </div>
-            <div>
-              <span className="text-[#E6EDF7]">Language:</span>{" "}
-              {success.result.detected_language}
-            </div>
-          </div>
-          <p className="text-xs text-[#93A4BF]">
-            <span className="text-[#E6EDF7]">Action:</span>{" "}
-            {success.result.recommended_action}
-          </p>
-          {success.meta.fallback && (
-            <p className="text-xs text-amber-400">
-              ⚠ AI triage failed — saved for human review.
-            </p>
-          )}
-          <a
-            href="/ops"
-            className="inline-block text-xs text-[#22D3EE] hover:underline"
+      {/* Outcome — plain language for the fan; ops numbers stay on the dashboard */}
+      {success &&
+        (success.meta.fallback ? (
+          <div
+            ref={resultRef}
+            role="status"
+            className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30 space-y-1.5"
           >
-            View in Ops Dashboard →
-          </a>
-        </div>
-      )}
+            <p className="text-amber-400 font-semibold text-base">
+              ✓ Report received
+            </p>
+            <p className="text-sm text-[#E6EDF7]">
+              A dispatcher will review it right away.
+            </p>
+            <p className="text-xs text-[#93A4BF]">
+              AI triage was unavailable, so your report went straight to staff.
+            </p>
+          </div>
+        ) : (
+          <div
+            ref={resultRef}
+            role="status"
+            className="p-4 rounded-lg bg-[#22D3EE]/10 border border-[#22D3EE]/30 space-y-2"
+          >
+            <p className="text-[#22D3EE] font-semibold text-base">
+              ✓ Help is on the way
+            </p>
+            <p className="text-sm text-[#E6EDF7]">
+              {success.result.recommended_action}
+            </p>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[#93A4BF]">
+              <span>{CATEGORY_LABELS[success.result.category]}</span>
+              {success.result.zone !== "unknown" && (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span>{ZONE_LABELS[success.result.zone]}</span>
+                </>
+              )}
+              <span aria-hidden="true">·</span>
+              <span>Understood in {success.result.detected_language}</span>
+            </div>
+            <a
+              href="/ops"
+              className="inline-block text-xs text-[#22D3EE] hover:underline"
+            >
+              Track it on the Ops Dashboard →
+            </a>
+          </div>
+        ))}
     </form>
   );
 }

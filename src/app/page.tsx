@@ -82,34 +82,33 @@ export default function HomePage() {
               <span className="text-[#22D3EE]">Stadium</span>Pulse
             </h1>
             <p className="mt-3 text-lg sm:text-xl text-[#E6EDF7]/90">
-              Report an incident in any language
+              See a problem? Tell us — in any language.
             </p>
             <p className="mt-2 text-[#93A4BF] text-sm sm:text-base max-w-lg mx-auto">
-              The AI dispatcher structures it into prioritized ops intelligence
-              in seconds — you speak, it triages.
+              Type it or say it. The ops team is alerted in seconds.
             </p>
-
-            {/* Live-ops stat chips */}
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs">
-              {[
-                ["8", "zones monitored"],
-                ["100+", "languages"],
-                ["< 3s", "to triage"],
-                ["24/7", "ops coverage"],
-              ].map(([stat, label]) => (
-                <span
-                  key={label}
-                  className="rounded-lg border border-[#1e293b] bg-[#121A2B]/70 px-3 py-1.5 backdrop-blur-sm"
-                >
-                  <span className="font-bold text-[#E6EDF7]">{stat}</span>{" "}
-                  <span className="text-[#93A4BF]">{label}</span>
-                </span>
-              ))}
-            </div>
           </div>
 
           <div className="bg-[#121A2B]/90 backdrop-blur-sm rounded-xl border border-[#1e293b] p-6 sm:p-8 shadow-2xl shadow-[#22D3EE]/10">
             <ReportForm onTriageComplete={handleTriageComplete} />
+          </div>
+
+          {/* Live-ops stat chips — proof, after the action */}
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs">
+            {[
+              ["8", "zones monitored"],
+              ["100+", "languages"],
+              ["< 3s", "to triage"],
+              ["24/7", "ops coverage"],
+            ].map(([stat, label]) => (
+              <span
+                key={label}
+                className="rounded-lg border border-[#1e293b] bg-[#121A2B]/70 px-3 py-1.5 backdrop-blur-sm"
+              >
+                <span className="font-bold text-[#E6EDF7]">{stat}</span>{" "}
+                <span className="text-[#93A4BF]">{label}</span>
+              </span>
+            ))}
           </div>
 
           <p className="mt-4 text-center text-sm text-[#93A4BF]">

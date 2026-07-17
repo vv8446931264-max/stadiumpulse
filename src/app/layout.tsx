@@ -46,6 +46,18 @@ export const metadata: Metadata = {
   icons: { icon: "/icon.png" },
 };
 
+/** Static, compile-time structured data — no user input flows here. */
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "StadiumPulse",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web",
+  description:
+    "GenAI incident triage for FIFA World Cup 2026 stadium operations. Report in any language; AI parses, code calculates priority.",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -75,6 +87,10 @@ export default function RootLayout({
           <span className="text-[#22D3EE]">Gemini</span> for PromptWars
           Challenge 4
         </footer>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </body>
     </html>
   );

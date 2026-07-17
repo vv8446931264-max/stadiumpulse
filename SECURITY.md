@@ -14,12 +14,12 @@ StadiumPulse implements the following security measures:
 - **Input validation**: All inputs are validated with Zod schemas before processing. Request body size is capped at 2 KB.
 - **Rate limiting**: Token-bucket rate limiter (10 req/min per IP) prevents API abuse. Per-instance; resets on cold start — acceptable for prototype.
 - **Safe error messages**: Error responses never leak internal state, stack traces, or API details.
-- **Security headers**: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security`, `Referrer-Policy`, `Permissions-Policy` (camera/microphone/geolocation denied), and a basic Content Security Policy.
+- **Security headers**: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security`, `Referrer-Policy`, `Permissions-Policy` (camera/geolocation denied; microphone same-origin only, for voice reporting), and a Content Security Policy.
 - **Request tracing**: Every API response includes an `X-Request-Id` header (UUID) for incident correlation.
 
 ### Client-Side
 
-- **No `dangerouslySetInnerHTML`**: All AI-generated text renders as React text nodes only.
+- **No `dangerouslySetInnerHTML` on dynamic data**: All AI-generated and user text renders as React text nodes only. The single use of `dangerouslySetInnerHTML` is a static, compile-time JSON-LD object in the root layout — no user input flows into it.
 - **LocalStorage validation**: Data is Zod-validated on every read. Invalid data triggers an automatic reset to seed data.
 - **No third-party scripts**: Zero external runtime dependencies beyond Next.js and Gemini API.
 

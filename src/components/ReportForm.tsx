@@ -332,9 +332,14 @@ export default function ReportForm({ onTriageComplete }: ReportFormProps) {
               <span aria-hidden="true">·</span>
               <span>Understood in {success.result.detected_language}</span>
             </div>
+            {success.meta.lowConfidence && (
+              <p className="text-xs text-amber-400">
+                ⓘ The AI wasn&apos;t fully sure — a staff member will verify this.
+              </p>
+            )}
             <a
               href="/ops"
-              className="inline-block text-xs text-[#22D3EE] hover:underline"
+              className="inline-block text-xs text-[#22D3EE] hover:underline font-medium"
             >
               Track it on the Ops Dashboard →
             </a>

@@ -5,7 +5,7 @@ import Image from "next/image";
 import ReportForm from "@/components/ReportForm";
 import AskAssistant from "@/components/AskAssistant";
 import type { TriageResult, TriageMeta, Incident } from "@/lib/schema";
-import { addIncident } from "@/lib/store";
+import { addIncident, setLastSubmitted } from "@/lib/store";
 import { computePriority, countOpenInZone } from "@/lib/engine";
 import { readIncidents } from "@/lib/store";
 
@@ -34,6 +34,7 @@ export default function HomePage() {
       };
 
       addIncident(incident);
+      setLastSubmitted(incident.id); // so /ops can highlight + scroll to it
       setLastIncident(incident);
     },
     []

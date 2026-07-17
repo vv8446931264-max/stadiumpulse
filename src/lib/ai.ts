@@ -1,6 +1,12 @@
 import { getGenAI } from "./genai";
 import { TriageResultSchema } from "./schema";
 import type { TriageMeta, TriageResult, ZoneOrUnknown } from "./schema";
+import {
+  sanitizeText,
+  looksLikeInjection,
+  CONFIDENCE_FLOOR,
+  INJECTION_GUARD_CLAUSE,
+} from "./guardrails";
 
 /**
  * Gemini system prompt for incident triage.
@@ -28,7 +34,9 @@ Example input: "lost my kid near the fan zone, wearing a red argentina shirt"
 Example output: {"category":"lost_person","severity":4,"zone":"fan_zone","summary_en":"Child lost near the fan zone, wearing a red Argentina shirt.","detected_language":"English","recommended_action":"Alert fan zone security with description and start lost-child protocol.","confidence":0.95}
 
 Example input: "Overflowing bins and trash everywhere near the food stalls"
-Example output: {"category":"sustainability","severity":3,"zone":"unknown","summary_en":"Overflowing bins and litter near food stalls.","detected_language":"English","recommended_action":"Deploy waste management crew and add temporary bins.","confidence":0.88}`;
+Example output: {"category":"sustainability","severity":3,"zone":"unknown","summary_en":"Overflowing bins and litter near food stalls.","detected_language":"English","recommended_action":"Deploy waste management crew and add temporary bins.","confidence":0.88}
+
+${INJECTION_GUARD_CLAUSE}`;
 
 /**
  * Build the deterministic fallback result when Gemini fails.
@@ -70,18 +78,25 @@ export async function triageWithGemini(
   text: string,
   zone?: string
 ): Promise<{ result: TriageResult; meta: TriageMeta }> {
+  // Guardrail: sanitize untrusted input, flag injection attempts (non-blocking).
+  const cleanText = sanitizeText(text);
+  const injectionFlagged = looksLikeInjection(cleanText);
+  if (injectionFlagged) {
+    console.warn("[ai] Prompt-injection pattern detected in report; treating as data only");
+  }
+
   const ai = getGenAI();
   if (!ai) {
     console.error("[ai] No Gemini backend configured (Vertex AI or API key)");
     return {
-      result: buildFallback(text, (zone as ZoneOrUnknown) ?? undefined),
-      meta: { cached: false, retried: false, fallback: true },
+      result: buildFallback(cleanText, (zone as ZoneOrUnknown) ?? undefined),
+      meta: { cached: false, retried: false, fallback: true, injectionFlagged },
     };
   }
 
   const userContent = zone
-    ? `${text}\n\nApp-provided zone: ${zone}`
-    : text;
+    ? `${cleanText}\n\nApp-provided zone: ${zone}`
+    : cleanText;
 
   try {
     // First attempt
@@ -102,7 +117,13 @@ export async function triageWithGemini(
     if (validated.success) {
       return {
         result: validated.data,
-        meta: { cached: false, retried: false, fallback: false },
+        meta: {
+          cached: false,
+          retried: false,
+          fallback: false,
+          injectionFlagged,
+          lowConfidence: validated.data.confidence < CONFIDENCE_FLOOR,
+        },
       };
     }
 
@@ -127,21 +148,27 @@ export async function triageWithGemini(
     if (retryValidated.success) {
       return {
         result: retryValidated.data,
-        meta: { cached: false, retried: true, fallback: false },
+        meta: {
+          cached: false,
+          retried: true,
+          fallback: false,
+          injectionFlagged,
+          lowConfidence: retryValidated.data.confidence < CONFIDENCE_FLOOR,
+        },
       };
     }
 
     // Second failure → fallback
     console.warn("[ai] Retry also failed, using fallback");
     return {
-      result: buildFallback(text, (zone as ZoneOrUnknown) ?? undefined),
-      meta: { cached: false, retried: true, fallback: true },
+      result: buildFallback(cleanText, (zone as ZoneOrUnknown) ?? undefined),
+      meta: { cached: false, retried: true, fallback: true, injectionFlagged },
     };
   } catch (error) {
     console.error("[ai] Gemini call failed:", error);
     return {
-      result: buildFallback(text, (zone as ZoneOrUnknown) ?? undefined),
-      meta: { cached: false, retried: false, fallback: true },
+      result: buildFallback(cleanText, (zone as ZoneOrUnknown) ?? undefined),
+      meta: { cached: false, retried: false, fallback: true, injectionFlagged },
     };
   }
 }

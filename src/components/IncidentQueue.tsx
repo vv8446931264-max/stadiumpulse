@@ -15,6 +15,8 @@ interface IncidentQueueProps {
   onResolve: (id: string) => void;
   /** ID of the most recently added incident — used for entrance animation. */
   newestId?: string;
+  /** ID of the report the current fan just filed — gets a "Your report" badge. */
+  trackedId?: string;
 }
 
 /**
@@ -75,18 +77,22 @@ export default function IncidentQueue({
     <div className="space-y-3" role="list" aria-label="Incident queue">
       {sorted.map((incident) => {
         const isNewest = incident.id === newestId;
+        const isTracked = incident.id === trackedId;
         const isResolved = incident.status === "resolved";
 
         return (
           <div
             key={incident.id}
+            id={`incident-${incident.id}`}
             role="listitem"
             className={`rounded-lg border p-4 transition-all duration-300 ${
               isResolved
                 ? "bg-[#121A2B]/50 border-[#1e293b]/50 opacity-60"
                 : "bg-[#121A2B] border-[#1e293b]"
             } ${
-              isNewest
+              isTracked
+                ? "ring-2 ring-[#22D3EE] border-[#22D3EE]/50"
+                : isNewest
                 ? "ring-2 ring-[#22D3EE]/50 animate-pulse"
                 : ""
             }`}
@@ -104,6 +110,11 @@ export default function IncidentQueue({
               <div className="flex-1 min-w-0 space-y-2">
                 {/* Top row: badges */}
                 <div className="flex items-center flex-wrap gap-2">
+                  {isTracked && (
+                    <span className="inline-flex items-center rounded-full bg-[#22D3EE] px-2 py-0.5 text-[10px] font-bold text-[#0B1220]">
+                      YOUR REPORT
+                    </span>
+                  )}
                   <CategoryBadge category={incident.category} />
                   <SeverityBadge severity={incident.severity} />
                   <span className="text-xs text-[#93A4BF]">

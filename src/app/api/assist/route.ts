@@ -8,6 +8,7 @@ import {
 import type { AssistResult } from "@/lib/schema";
 import { checkRateLimit } from "@/lib/ratelimit";
 import { getGenAI } from "@/lib/genai";
+import { sanitizeText, INJECTION_GUARD_CLAUSE } from "@/lib/guardrails";
 
 /** Maximum request body size in bytes (2 KB) — same cap as /api/triage. */
 const MAX_BODY_SIZE = 2048;
@@ -20,8 +21,10 @@ const MAX_BODY_SIZE = 2048;
 const ASSIST_PROMPT = `You are StadiumPulse's fan assistant for a FIFA World Cup 2026 stadium.
 The stadium zones are: ${ZONES.map((z) => ZONE_LABELS[z]).join(", ")}.
 Layout facts: gates are at the north and south; stands are east and west; the concourse ring connects everything; the fan zone, transit hub, and parking are outside the bowl. Accessible entrances exist at every gate; medical posts are at each gate and on the concourse; water refill points are on the concourse.
-Answer the fan's question in THE SAME LANGUAGE the fan used, in at most 2 short sentences. Be concrete about direction and zone. Never give medical advice — direct medical questions to the nearest medical post.
-Output ONLY a JSON object: {"answer": string, "detected_language": string}.`;
+Answer the fan's question in THE SAME LANGUAGE the fan used, in at most 2 short sentences. Be concrete about direction and zone. Never give medical advice — direct medical questions to the nearest medical post. If the question is off-topic (not about the stadium, wayfinding, or facilities), politely say you can only help with stadium navigation.
+Output ONLY a JSON object: {"answer": string, "detected_language": string}.
+
+${INJECTION_GUARD_CLAUSE}`;
 
 /** Safe deterministic fallback — the fan always gets an actionable answer. */
 const FALLBACK: AssistResult = {
@@ -68,7 +71,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const { question, zone } = parseResult.data;
+    // Guardrail: neutralize untrusted input before it reaches the model.
+    const question = sanitizeText(parseResult.data.question, 300);
+    const { zone } = parseResult.data;
+    if (!question) {
+      return NextResponse.json(
+        { ok: false, error: "Invalid question." },
+        { status: 400, headers: { "X-Request-Id": requestId } }
+      );
+    }
 
     // --- Rate limit (shared limiter with /api/triage) ---
     const ip =

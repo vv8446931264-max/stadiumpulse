@@ -124,6 +124,10 @@ export interface TriageMeta {
   retried: boolean;
   /** Whether the deterministic fallback was used. */
   fallback: boolean;
+  /** Guardrail: AI confidence fell below the trust floor — verify with a human. */
+  lowConfidence?: boolean;
+  /** Guardrail: the report text contained a prompt-injection attempt (neutralized). */
+  injectionFlagged?: boolean;
 }
 
 /**

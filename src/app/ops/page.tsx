@@ -1,9 +1,14 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import IncidentQueue from "@/components/IncidentQueue";
 import StadiumMap from "@/components/StadiumMap";
-import { resolveIncident, addBulkIncidents, resetToSeeds } from "@/lib/store";
+import {
+  resolveIncident,
+  addBulkIncidents,
+  resetToSeeds,
+  consumeLastSubmitted,
+} from "@/lib/store";
 import { useIncidents } from "@/lib/useIncidents";
 import { computeZoneHeat } from "@/lib/engine";
 import { MATCHDAY_SIMULATION } from "@/lib/seed";
@@ -22,8 +27,29 @@ export default function OpsPage() {
   // Live from the store — updates on mutation and cross-tab writes.
   const incidents = useIncidents();
   const [newestId, setNewestId] = useState<string | undefined>();
+  const [trackedId, setTrackedId] = useState<string | undefined>();
   const [announcement, setAnnouncement] = useState("");
   const [selectedZone, setSelectedZone] = useState<Zone | null>(null);
+
+  // If the fan just filed a report and clicked "Track it", highlight and
+  // scroll to their exact incident so it never gets lost in the queue.
+  useEffect(() => {
+    const id = consumeLastSubmitted();
+    if (!id) return;
+    // Defer the state updates out of the effect body (avoids cascading renders).
+    queueMicrotask(() => {
+      setTrackedId(id);
+      setNewestId(id);
+      setAnnouncement("Your report is highlighted in the queue.");
+    });
+    // Wait for the queue to render, then scroll the card into view.
+    const t = setTimeout(() => {
+      document
+        .getElementById(`incident-${id}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 300);
+    return () => clearTimeout(t);
+  }, []);
 
   const handleResolve = useCallback((id: string) => {
     resolveIncident(id);
@@ -118,6 +144,7 @@ export default function OpsPage() {
             incidents={visibleIncidents}
             onResolve={handleResolve}
             newestId={newestId}
+            trackedId={trackedId}
           />
         </div>
 

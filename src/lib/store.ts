@@ -33,6 +33,31 @@ export function getIncidentsServerSnapshot(): Incident[] {
   return [];
 }
 
+/** sessionStorage key remembering the report a fan just submitted. */
+const LAST_SUBMITTED_KEY = "stadiumpulse.lastSubmitted";
+
+/** Remember the incident a fan just filed, so /ops can highlight it. */
+export function setLastSubmitted(id: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(LAST_SUBMITTED_KEY, id);
+  } catch {
+    // sessionStorage unavailable (private mode) — highlight simply won't fire.
+  }
+}
+
+/** Read and clear the just-submitted incident id (one-shot). */
+export function consumeLastSubmitted(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const id = sessionStorage.getItem(LAST_SUBMITTED_KEY);
+    if (id) sessionStorage.removeItem(LAST_SUBMITTED_KEY);
+    return id;
+  } catch {
+    return null;
+  }
+}
+
 /** Subscribe to store changes, including cross-tab writes. */
 export function subscribeIncidents(cb: () => void): () => void {
   listeners.add(cb);

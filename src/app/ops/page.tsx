@@ -7,6 +7,8 @@ import { resolveIncident, addBulkIncidents, resetToSeeds } from "@/lib/store";
 import { useIncidents } from "@/lib/useIncidents";
 import { computeZoneHeat } from "@/lib/engine";
 import { MATCHDAY_SIMULATION } from "@/lib/seed";
+import { ZONE_LABELS } from "@/lib/schema";
+import type { Zone } from "@/lib/schema";
 
 /**
  * Ops Command dashboard.
@@ -21,6 +23,7 @@ export default function OpsPage() {
   const incidents = useIncidents();
   const [newestId, setNewestId] = useState<string | undefined>();
   const [announcement, setAnnouncement] = useState("");
+  const [selectedZone, setSelectedZone] = useState<Zone | null>(null);
 
   const handleResolve = useCallback((id: string) => {
     resolveIncident(id);
@@ -46,6 +49,16 @@ export default function OpsPage() {
 
   const heatData = computeZoneHeat(incidents);
   const openCount = incidents.filter((i) => i.status === "open").length;
+  const visibleIncidents = selectedZone
+    ? incidents.filter((i) => i.zone === selectedZone)
+    : incidents;
+
+  const handleZoneSelect = useCallback((zone: Zone | null) => {
+    setSelectedZone(zone);
+    setAnnouncement(
+      zone ? `Queue filtered to ${ZONE_LABELS[zone]}.` : "Zone filter cleared."
+    );
+  }, []);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
@@ -92,8 +105,17 @@ export default function OpsPage() {
           <h2 className="text-sm font-semibold text-[#93A4BF] uppercase tracking-wider mb-3">
             Priority Queue
           </h2>
+          {selectedZone && (
+            <button
+              onClick={() => handleZoneSelect(null)}
+              className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#22D3EE]/30 bg-[#22D3EE]/10 px-3 py-1 text-xs font-medium text-[#22D3EE] hover:bg-[#22D3EE]/20 focus:outline-none focus:ring-2 focus:ring-[#22D3EE]"
+              aria-label={`Clear zone filter ${ZONE_LABELS[selectedZone]}`}
+            >
+              Filtering: {ZONE_LABELS[selectedZone]} ✕
+            </button>
+          )}
           <IncidentQueue
-            incidents={incidents}
+            incidents={visibleIncidents}
             onResolve={handleResolve}
             newestId={newestId}
           />
@@ -105,7 +127,14 @@ export default function OpsPage() {
             Live Stadium Map
           </h2>
           <div className="p-3 rounded-xl bg-[#121A2B] border border-[#1e293b]">
-            <StadiumMap heatData={heatData} />
+            <StadiumMap
+              heatData={heatData}
+              selectedZone={selectedZone}
+              onZoneSelect={handleZoneSelect}
+            />
+            <p className="mt-2 text-center text-[10px] text-[#93A4BF]">
+              Tap a zone to filter the queue
+            </p>
           </div>
         </div>
       </div>

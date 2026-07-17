@@ -91,7 +91,15 @@ const ZONE_SHAPES: Record<Zone, ZoneShape> = {
   fan_zone: { kind: "rect", x: 8, y: 316, w: 424, h: 40 },
 };
 
-export default function StadiumMap({ heatData }: { heatData: ZoneHeatData[] }) {
+export default function StadiumMap({
+  heatData,
+  selectedZone = null,
+  onZoneSelect,
+}: {
+  heatData: ZoneHeatData[];
+  selectedZone?: Zone | null;
+  onZoneSelect?: (zone: Zone | null) => void;
+}) {
   const byZone = new Map(heatData.map((d) => [d.zone, d]));
 
   function cell(zone: Zone) {
@@ -102,6 +110,8 @@ export default function StadiumMap({ heatData }: { heatData: ZoneHeatData[] }) {
     const label = ZONE_LABELS[zone];
     const shape = ZONE_SHAPES[zone];
     const isHot = level === "high" || level === "critical";
+    const isSelected = selectedZone === zone;
+    const toggle = () => onZoneSelect?.(isSelected ? null : zone);
 
     // Label anchor per shape.
     let lx = CENTER.x;
@@ -122,8 +132,8 @@ export default function StadiumMap({ heatData }: { heatData: ZoneHeatData[] }) {
       fill: fill.color,
       fillOpacity: fill.opacity,
       stroke: HEAT_STROKE[level],
-      strokeOpacity: 0.55,
-      strokeWidth: 1.2,
+      strokeOpacity: isSelected ? 1 : 0.55,
+      strokeWidth: isSelected ? 2.5 : 1.2,
       style: isHot
         ? { animation: "zone-pulse 1.8s ease-in-out infinite" }
         : undefined,
@@ -132,8 +142,22 @@ export default function StadiumMap({ heatData }: { heatData: ZoneHeatData[] }) {
     return (
       <g
         key={zone}
-        role="img"
-        aria-label={`${label}: ${level}, ${count} open incidents`}
+        role="button"
+        tabIndex={0}
+        aria-pressed={isSelected}
+        aria-label={`${label}: ${level}, ${count} open incidents. ${
+          isSelected
+            ? "Selected — activate to clear the filter."
+            : "Activate to filter the queue."
+        }`}
+        className="cursor-pointer"
+        onClick={toggle}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            toggle();
+          }
+        }}
       >
         {shape.kind === "stand" && (
           <path d={standPath(shape.deg1, shape.deg2)} {...common} />

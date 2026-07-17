@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import { SITE_URL } from "@/lib/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,9 +15,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://stadiumpulse-nine.vercel.app"
-  ),
+  metadataBase: new URL(SITE_URL),
+  alternates: { canonical: "/" },
+  keywords: [
+    "FIFA World Cup 2026",
+    "stadium operations",
+    "GenAI",
+    "incident triage",
+    "Gemini",
+    "crowd management",
+    "multilingual",
+  ],
   title: "StadiumPulse — GenAI Incident Triage for FIFA World Cup 2026",
   description:
     "Report stadium incidents in any language. Gemini AI triages them into structured, prioritized ops intelligence in seconds.",

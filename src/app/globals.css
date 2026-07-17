@@ -21,7 +21,7 @@
 body {
   background: var(--sp-bg);
   color: var(--sp-text);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
 /* Signature moment: accent glow pulse for new incidents */

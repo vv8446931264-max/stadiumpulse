@@ -1,0 +1,11 @@
+node_modules
+.next
+.git
+.vercel
+Ai_images
+.env*
+!.env.example
+npm-debug.log*
+README.md
+docs
+scripts

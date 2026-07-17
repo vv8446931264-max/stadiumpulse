@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { getGenAI } from "./genai";
 import { TriageResultSchema } from "./schema";
 import type { TriageMeta, TriageResult, ZoneOrUnknown } from "./schema";
 
@@ -70,16 +70,14 @@ export async function triageWithGemini(
   text: string,
   zone?: string
 ): Promise<{ result: TriageResult; meta: TriageMeta }> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    console.error("[ai] GEMINI_API_KEY is not set");
+  const ai = getGenAI();
+  if (!ai) {
+    console.error("[ai] No Gemini backend configured (Vertex AI or API key)");
     return {
       result: buildFallback(text, (zone as ZoneOrUnknown) ?? undefined),
       meta: { cached: false, retried: false, fallback: true },
     };
   }
-
-  const ai = new GoogleGenAI({ apiKey });
 
   const userContent = zone
     ? `${text}\n\nApp-provided zone: ${zone}`

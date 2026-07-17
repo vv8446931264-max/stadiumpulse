@@ -10,7 +10,7 @@ StadiumPulse implements the following security measures:
 
 ### Server-Side
 
-- **API key isolation**: `GEMINI_API_KEY` is server-only via `.env.local`, never referenced in client components, and gitignored.
+- **No API key in production**: Cloud Run authenticates to Gemini via **Vertex AI** using the runtime service account (Application Default Credentials) — there is no API key to leak or rotate. Local development may use a server-only `GEMINI_API_KEY` via `.env.local` (gitignored, never referenced in client components).
 - **Input validation**: All inputs are validated with Zod schemas before processing. Request body size is capped at 2 KB.
 - **Rate limiting**: Token-bucket rate limiter (10 req/min per IP) prevents API abuse. Per-instance; resets on cold start — acceptable for prototype.
 - **Safe error messages**: Error responses never leak internal state, stack traces, or API details.

@@ -88,7 +88,9 @@ git clone https://github.com/YOUR_USERNAME/stadiumpulse.git
 cd stadiumpulse
 npm ci
 cp .env.example .env.local
-# Edit .env.local → set GEMINI_API_KEY=your_key_from_aistudio.google.com
+# Pick a Gemini backend in .env.local:
+#   • Vertex AI  → GOOGLE_GENAI_USE_VERTEXAI=true + GOOGLE_CLOUD_PROJECT (uses GCP ADC, no key)
+#   • Dev API    → GEMINI_API_KEY=your_key_from_aistudio.google.com
 npm run dev
 # Open http://localhost:3000
 ```
@@ -108,7 +110,7 @@ npm run dev
 
 | Protection | Implementation |
 |-----------|---------------|
-| API key isolation | Server-only `GEMINI_API_KEY` via `.env.local`, never in client code |
+| No API key in production | Cloud Run authenticates to Gemini via **Vertex AI** using the runtime service account (GCP ADC). No key to leak. Local dev may use a server-only `GEMINI_API_KEY`, never referenced in client code. |
 | Input validation | Zod schemas on all boundaries; body size capped at 2 KB |
 | Rate limiting | Token bucket: 10 req/min/IP (per-instance; resets on cold start) |
 | Security headers | `X-Frame-Options: DENY`, `HSTS`, `nosniff`, `Permissions-Policy` (mic same-origin only), hardened CSP |
@@ -191,7 +193,7 @@ npm test
 | Framework | Next.js 16 (App Router, Turbopack) |
 | Language | TypeScript (strict mode) |
 | Styling | Tailwind CSS 4 |
-| AI | Google Gemini 2.5 Flash via `@google/genai` |
+| AI | Google Gemini 2.5 Flash via `@google/genai` — **Vertex AI** in production (GCP ADC), Developer API for local dev |
 | Validation | Zod 4 |
 | Testing | Vitest 4 |
 | Deploy | GCP Cloud Run (Docker, standalone output) + Vercel |

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
 import {
   AssistRequestSchema,
   AssistResultSchema,
@@ -8,6 +7,7 @@ import {
 } from "@/lib/schema";
 import type { AssistResult } from "@/lib/schema";
 import { checkRateLimit } from "@/lib/ratelimit";
+import { getGenAI } from "@/lib/genai";
 
 /** Maximum request body size in bytes (2 KB) — same cap as /api/triage. */
 const MAX_BODY_SIZE = 2048;
@@ -96,9 +96,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // --- Ask Gemini (deterministic fallback on any failure) ---
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      console.error("[api/assist] GEMINI_API_KEY is not set");
+    const ai = getGenAI();
+    if (!ai) {
+      console.error("[api/assist] No Gemini backend configured");
       return NextResponse.json(
         { ok: true, result: FALLBACK, meta: { fallback: true } },
         { status: 200, headers: { "X-Request-Id": requestId } }
@@ -106,7 +106,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     try {
-      const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
         config: {

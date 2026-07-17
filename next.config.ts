@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const isProd = process.env.NODE_ENV === "production";
+
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -13,16 +15,21 @@ const securityHeaders = [
     value: "camera=(), microphone=(self), geolocation=()",
   },
   {
-    // Basic CSP — permissive enough for Next.js inline scripts/styles,
-    // but demonstrates intent. Tightened in production.
+    // Next.js needs 'unsafe-eval' only in dev (Fast Refresh); prod drops it.
+    // 'unsafe-inline' remains for Next's bootstrap inline scripts + styles.
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+      `script-src 'self' 'unsafe-inline'${isProd ? "" : " 'unsafe-eval'"}`,
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self' data:",
       "img-src 'self' data:",
+      "media-src 'self'",
       "connect-src 'self' https://generativelanguage.googleapis.com",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'none'",
     ].join("; "),
   },
 ];

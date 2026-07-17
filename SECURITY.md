@@ -28,7 +28,7 @@ StadiumPulse implements the following security measures:
 | Limitation | Rationale |
 |---|---|
 | **Per-instance rate limiter** | Module-level `Map` resets on serverless cold start. Production would use Redis or Cloudflare rate limiting. |
-| **Permissive CSP** | Next.js requires `unsafe-eval` and `unsafe-inline` for client-side hydration. A nonce-based CSP is a stretch goal. |
+| **CSP allows `unsafe-inline`** | Next.js bootstrap requires inline scripts/styles without a nonce pipeline. `unsafe-eval` is dev-only (dropped in production); `object-src`, `base-uri`, `form-action`, and `frame-ancestors` are locked down. A nonce-based CSP is a stretch goal. |
 | **No authentication** | Prototype scope — ops dashboard is publicly accessible. Production would add Firebase Auth or similar. |
 | **LocalStorage persistence** | No server-side database. Data is per-browser and capped at 200 incidents. |
 

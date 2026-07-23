@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Analytics — Incident Statistics | StadiumPulse",
+  title: "Analytics — Incident Statistics",
   description:
     "Incident category breakdown, severity by zone, and resolution rates across the stadium.",
   alternates: { canonical: "/stats" },

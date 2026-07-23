@@ -159,7 +159,7 @@ export default function ReportForm({ onTriageComplete }: ReportFormProps) {
       <div>
         <label
           htmlFor="report-text"
-          className="block text-sm font-medium text-[#E6EDF7] mb-2"
+          className="block text-sm font-bold text-[#F8FAFC] mb-2"
         >
           What&apos;s happening?
         </label>
@@ -175,7 +175,7 @@ export default function ReportForm({ onTriageComplete }: ReportFormProps) {
             maxLength={500}
             rows={4}
             placeholder="Type or tap the mic — any language works"
-            className="w-full rounded-lg bg-[#0B1220] border border-[#1e293b] text-[#E6EDF7] placeholder-[#93A4BF]/60 px-4 py-3 pr-14 text-sm focus:outline-none focus:ring-2 focus:ring-[#22D3EE] focus:border-transparent resize-none transition-shadow"
+            className="w-full rounded-lg bg-[#0B1220] border border-[#1e293b] text-[#F8FAFC] placeholder-[#CBD5E1]/60 px-4 py-3 pr-14 text-sm focus:outline-none focus:ring-2 focus:ring-[#22D3EE] focus:border-transparent resize-none transition-shadow"
             aria-describedby="char-counter"
             disabled={isLoading}
           />
@@ -190,7 +190,7 @@ export default function ReportForm({ onTriageComplete }: ReportFormProps) {
               className={`absolute top-2.5 right-2.5 flex h-9 w-9 items-center justify-center rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-[#22D3EE] ${
                 listening
                   ? "bg-[#EF4444]/20 border-[#EF4444]/40 text-[#EF4444] animate-pulse"
-                  : "bg-[#121A2B] border-[#1e293b] text-[#93A4BF] hover:text-[#22D3EE] hover:border-[#22D3EE]/40"
+                  : "bg-[#121A2B] border-[#1e293b] text-[#CBD5E1] hover:text-[#22D3EE] hover:border-[#22D3EE]/40"
               }`}
             >
               {/* Microphone glyph */}
@@ -214,8 +214,8 @@ export default function ReportForm({ onTriageComplete }: ReportFormProps) {
         </div>
         <div
           id="char-counter"
-          className={`text-xs mt-1 text-right ${
-            charCount > 450 ? "text-amber-400" : "text-[#93A4BF]"
+          className={`text-xs mt-1 text-right font-semibold ${
+            charCount > 450 ? "text-amber-400" : "text-[#CBD5E1]"
           }`}
         >
           {charCount}/500
@@ -226,10 +226,10 @@ export default function ReportForm({ onTriageComplete }: ReportFormProps) {
       <div>
         <label
           htmlFor="report-zone"
-          className="block text-sm font-medium text-[#E6EDF7] mb-2"
+          className="block text-sm font-bold text-[#F8FAFC] mb-2"
         >
           Where?{" "}
-          <span className="text-[#93A4BF] font-normal">
+          <span className="text-[#CBD5E1] font-normal">
             (optional — the AI can detect it)
           </span>
         </label>
@@ -237,7 +237,7 @@ export default function ReportForm({ onTriageComplete }: ReportFormProps) {
           id="report-zone"
           value={zone}
           onChange={(e) => setZone(e.target.value as Zone | "")}
-          className="w-full rounded-lg bg-[#0B1220] border border-[#1e293b] text-[#E6EDF7] px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#22D3EE] focus:border-transparent transition-shadow"
+          className="w-full rounded-lg bg-[#0B1220] border border-[#1e293b] text-[#F8FAFC] px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#22D3EE] focus:border-transparent transition-shadow"
           disabled={isLoading}
         >
           <option value="">— Auto-detect from text —</option>
@@ -251,7 +251,7 @@ export default function ReportForm({ onTriageComplete }: ReportFormProps) {
 
       {/* Example chips */}
       <div>
-        <p className="text-xs text-[#93A4BF] mb-2">
+        <p className="text-xs font-bold text-[#CBD5E1] mb-2">
           No time to type? Tap an example:
         </p>
         <div className="flex flex-wrap gap-2">
@@ -260,7 +260,7 @@ export default function ReportForm({ onTriageComplete }: ReportFormProps) {
               key={chip.lang}
               type="button"
               onClick={() => handleChipClick(chip.text)}
-              className="px-3 py-1.5 rounded-full text-xs bg-[#1e293b] text-[#93A4BF] hover:text-[#22D3EE] hover:bg-[#22D3EE]/10 border border-[#1e293b] hover:border-[#22D3EE]/30 transition-all"
+              className="px-3 py-1.5 rounded-full text-xs font-bold bg-[#1e293b] text-[#E2E8F0] hover:text-[#22D3EE] hover:bg-[#22D3EE]/10 border border-[#1e293b]/70 hover:border-[#22D3EE]/30 transition-all"
               disabled={isLoading}
               aria-label={`Fill the form with a ${chip.lang} example report`}
             >
@@ -275,7 +275,7 @@ export default function ReportForm({ onTriageComplete }: ReportFormProps) {
         type="submit"
         disabled={!canSubmit}
         aria-busy={isLoading}
-        className="w-full py-3 rounded-lg font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-[#22D3EE] text-[#0B1220] hover:bg-[#22D3EE]/90 focus:outline-none focus:ring-2 focus:ring-[#22D3EE] focus:ring-offset-2 focus:ring-offset-[#121A2B]"
+        className="w-full py-3 rounded-lg font-bold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-[#22D3EE] text-[#0B1220] hover:bg-[#22D3EE]/90 focus:outline-none focus:ring-2 focus:ring-[#22D3EE] focus:ring-offset-2 focus:ring-offset-[#121A2B] active:scale-[0.99]"
       >
         {isLoading ? "Triaging…" : "Send report"}
       </button>

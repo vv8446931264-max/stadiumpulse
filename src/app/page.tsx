@@ -110,19 +110,19 @@ export default function HomePage() {
             ].map(([stat, label]) => (
               <span
                 key={label}
-                className="rounded-lg border border-[#1e293b] bg-[#121A2B]/70 px-3 py-1.5 backdrop-blur-sm"
+                className="rounded-lg border border-[#1e293b] bg-[#121A2B]/85 px-3 py-1.5 backdrop-blur-md hover:scale-105 hover:border-[#22D3EE]/20 transition-all duration-300"
               >
-                <span className="font-bold text-[#E6EDF7]">{stat}</span>{" "}
-                <span className="text-[#93A4BF]">{label}</span>
+                <span className="font-bold text-[#F8FAFC]">{stat}</span>{" "}
+                <span className="text-[#CBD5E1] font-semibold">{label}</span>
               </span>
             ))}
           </div>
 
-          <p className="mt-4 text-center text-sm text-[#93A4BF]">
+          <p className="mt-4 text-center text-sm text-[#CBD5E1] font-medium">
             Running ops?{" "}
             <a
               href="/ops"
-              className="font-medium text-[#22D3EE] hover:underline"
+              className="font-bold text-[#22D3EE] hover:underline"
             >
               Open the live Ops Command dashboard →
             </a>
@@ -132,12 +132,12 @@ export default function HomePage() {
 
       {/* How it works — with generated illustrations */}
       <section className="max-w-4xl mx-auto px-4 py-10 sm:py-14">
-        <h2 className="text-center text-sm font-semibold text-[#93A4BF] uppercase tracking-wider mb-8">
+        <h2 className="text-center text-sm font-bold text-[#CBD5E1] uppercase tracking-wider mb-8">
           How it works
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {/* Step 1 */}
-          <div className="group rounded-xl bg-[#121A2B] border border-[#1e293b] overflow-hidden hover:border-[#22D3EE]/30 transition-colors">
+          <div className="group rounded-xl bg-[#121A2B]/85 backdrop-blur-md border border-[#1e293b] overflow-hidden hover:border-[#22D3EE]/30 transition-all">
             <div className="relative h-40 w-full overflow-hidden bg-[#0B1220]">
               <Image
                 src="/how-it-works-1.png"
@@ -148,17 +148,17 @@ export default function HomePage() {
               />
             </div>
             <div className="p-4 text-center">
-              <h3 className="text-sm font-semibold text-[#E6EDF7]">
+              <h3 className="text-sm font-bold text-[#F8FAFC]">
                 Any language
               </h3>
-              <p className="text-xs text-[#93A4BF] mt-1">
+              <p className="text-xs text-[#CBD5E1] font-medium mt-1">
                 Report in Hindi, Spanish, Arabic, or 100+ languages
               </p>
             </div>
           </div>
 
           {/* Step 2 */}
-          <div className="group rounded-xl bg-[#121A2B] border border-[#1e293b] overflow-hidden hover:border-[#22D3EE]/30 transition-colors">
+          <div className="group rounded-xl bg-[#121A2B]/85 backdrop-blur-md border border-[#1e293b] overflow-hidden hover:border-[#22D3EE]/30 transition-all">
             <div className="relative h-40 w-full overflow-hidden bg-[#0B1220]">
               <Image
                 src="/how-it-works-2.png"
@@ -169,17 +169,17 @@ export default function HomePage() {
               />
             </div>
             <div className="p-4 text-center">
-              <h3 className="text-sm font-semibold text-[#E6EDF7]">
+              <h3 className="text-sm font-bold text-[#F8FAFC]">
                 AI triage
               </h3>
-              <p className="text-xs text-[#93A4BF] mt-1">
+              <p className="text-xs text-[#CBD5E1] font-medium mt-1">
                 Gemini extracts category, severity, and recommended action
               </p>
             </div>
           </div>
 
           {/* Step 3 */}
-          <div className="group rounded-xl bg-[#121A2B] border border-[#1e293b] overflow-hidden hover:border-[#22D3EE]/30 transition-colors">
+          <div className="group rounded-xl bg-[#121A2B]/85 backdrop-blur-md border border-[#1e293b] overflow-hidden hover:border-[#22D3EE]/30 transition-all">
             <div className="relative h-40 w-full overflow-hidden bg-[#0B1220]">
               <Image
                 src="/how-it-works-3.png"
@@ -190,10 +190,10 @@ export default function HomePage() {
               />
             </div>
             <div className="p-4 text-center">
-              <h3 className="text-sm font-semibold text-[#E6EDF7]">
+              <h3 className="text-sm font-bold text-[#F8FAFC]">
                 Code calculates
               </h3>
-              <p className="text-xs text-[#93A4BF] mt-1">
+              <p className="text-xs text-[#CBD5E1] font-medium mt-1">
                 Deterministic priority — AI parses, code calculates
               </p>
             </div>

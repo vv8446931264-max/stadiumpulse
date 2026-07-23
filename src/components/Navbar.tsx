@@ -46,10 +46,10 @@ export default function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`px-3 py-2 rounded-md text-sm font-bold transition-all ${
                     isActive
-                      ? "bg-[#22D3EE]/15 text-[#22D3EE]"
-                      : "text-[#93A4BF] hover:text-[#E6EDF7] hover:bg-[#1e293b]"
+                      ? "bg-[#22D3EE]/15 text-[#22D3EE] shadow-[0_0_8px_rgba(34,211,238,0.1)]"
+                      : "text-[#CBD5E1] hover:text-[#F8FAFC] hover:bg-[#1e293b]"
                   }`}
                   aria-current={isActive ? "page" : undefined}
                 >

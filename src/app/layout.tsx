@@ -16,7 +16,12 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  alternates: { canonical: "/" },
+  title: "StadiumPulse — GenAI Incident Triage for FIFA World Cup 2026",
+  description:
+    "Report stadium incidents in any language. Gemini AI triages them into structured, prioritized ops intelligence in seconds.",
+  alternates: {
+    canonical: "/",
+  },
   keywords: [
     "FIFA World Cup 2026",
     "stadium operations",
@@ -26,14 +31,11 @@ export const metadata: Metadata = {
     "crowd management",
     "multilingual",
   ],
-  title: "StadiumPulse — GenAI Incident Triage for FIFA World Cup 2026",
-  description:
-    "Report stadium incidents in any language. Gemini AI triages them into structured, prioritized ops intelligence in seconds.",
   openGraph: {
     title: "StadiumPulse — GenAI Incident Triage",
     description:
       "Report in any language. AI triages. Code calculates priority. Ops team responds.",
-    images: [{ url: "/og.jpg", width: 1200, height: 630 }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     type: "website",
   },
   twitter: {
@@ -41,7 +43,7 @@ export const metadata: Metadata = {
     title: "StadiumPulse — GenAI Incident Triage",
     description:
       "Report in any language. AI triages. Code calculates priority.",
-    images: ["/og.jpg"],
+    images: ["/og-image.png"],
   },
   icons: { icon: "/icon.png" },
 };

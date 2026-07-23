@@ -46,6 +46,7 @@ export default function IncidentQueue({
   incidents,
   onResolve,
   newestId,
+  trackedId,
 }: IncidentQueueProps) {
   // Sort: open first, then by priority desc, then by createdAt desc
   const sorted = [...incidents].sort((a, b) => {
@@ -56,9 +57,9 @@ export default function IncidentQueue({
 
   if (sorted.length === 0) {
     return (
-      <div className="text-center py-12 text-[#93A4BF]">
-        <p className="text-lg font-medium">All clear.</p>
-        <p className="text-sm mt-1">No incidents reported yet.</p>
+      <div className="text-center py-12 text-[#CBD5E1]">
+        <p className="text-lg font-semibold">All clear.</p>
+        <p className="text-sm mt-1 text-[#CBD5E1]/80">No incidents reported yet.</p>
       </div>
     );
   }
@@ -67,8 +68,8 @@ export default function IncidentQueue({
   if (allResolved) {
     return (
       <div className="text-center py-12">
-        <p className="text-lg font-medium text-[#34D399]">✓ All clear.</p>
-        <p className="text-sm mt-1 text-[#93A4BF]">No open incidents.</p>
+        <p className="text-lg font-semibold text-[#34D399]">✓ All clear.</p>
+        <p className="text-sm mt-1 text-[#CBD5E1]">No open incidents.</p>
       </div>
     );
   }
@@ -85,15 +86,15 @@ export default function IncidentQueue({
             key={incident.id}
             id={`incident-${incident.id}`}
             role="listitem"
-            className={`rounded-lg border p-4 transition-all duration-300 ${
+            className={`rounded-lg border p-4 transition-all duration-300 hover:scale-[1.01] ${
               isResolved
-                ? "bg-[#121A2B]/50 border-[#1e293b]/50 opacity-60"
-                : "bg-[#121A2B] border-[#1e293b]"
+                ? "bg-[#121A2B]/40 border-[#1e293b]/50 opacity-60"
+                : "bg-[#121A2B]/85 backdrop-blur-md border-[#1e293b] hover:border-[#22D3EE]/30"
             } ${
               isTracked
                 ? "ring-2 ring-[#22D3EE] border-[#22D3EE]/50"
                 : isNewest
-                ? "ring-2 ring-[#22D3EE]/50 animate-pulse"
+                ? "ring-2 ring-[#22D3EE]/50"
                 : ""
             }`}
             style={
@@ -111,43 +112,43 @@ export default function IncidentQueue({
                 {/* Top row: badges */}
                 <div className="flex items-center flex-wrap gap-2">
                   {isTracked && (
-                    <span className="inline-flex items-center rounded-full bg-[#22D3EE] px-2 py-0.5 text-[10px] font-bold text-[#0B1220]">
+                    <span className="inline-flex items-center rounded-full bg-[#22D3EE] px-2 py-0.5 text-[10px] font-extrabold text-[#0B1220] tracking-wider">
                       YOUR REPORT
                     </span>
                   )}
                   <CategoryBadge category={incident.category} />
                   <SeverityBadge severity={incident.severity} />
-                  <span className="text-xs text-[#93A4BF]">
+                  <span className="text-xs text-[#F8FAFC] font-semibold">
                     {zoneLabel(incident.zone)}
                   </span>
                   <SourceBadge source={incident.source} />
                   {isResolved && (
-                    <span className="text-xs text-[#34D399] font-medium">
+                    <span className="text-xs text-[#34D399] font-bold">
                       ✓ Resolved
                     </span>
                   )}
                 </div>
 
                 {/* Summary */}
-                <p className="text-sm text-[#E6EDF7]">{incident.summary_en}</p>
+                <p className="text-sm font-semibold text-[#F8FAFC] leading-relaxed">{incident.summary_en}</p>
 
                 {/* Action */}
-                <p className="text-xs text-[#93A4BF]">
-                  <span className="text-[#22D3EE]">→</span>{" "}
+                <p className="text-xs text-[#CBD5E1] font-medium">
+                  <span className="text-[#22D3EE] font-bold">→</span>{" "}
                   {incident.recommended_action}
                 </p>
 
                 {/* Footer row */}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 text-[10px] text-[#93A4BF]">
-                    <span>{incident.detected_language}</span>
+                  <div className="flex items-center gap-3 text-[10px] text-[#CBD5E1]/85 font-medium">
+                    <span className="uppercase tracking-wider">{incident.detected_language}</span>
                     <span>{timeAgo(incident.createdAt)}</span>
                   </div>
 
                   {!isResolved && (
                     <button
                       onClick={() => onResolve(incident.id)}
-                      className="text-xs px-3 py-1 rounded bg-[#34D399]/15 text-[#34D399] hover:bg-[#34D399]/25 border border-[#34D399]/20 transition-colors focus:outline-none focus:ring-2 focus:ring-[#34D399]"
+                      className="text-xs px-3 py-1.5 rounded font-bold bg-[#34D399]/15 text-[#34D399] hover:bg-[#34D399]/25 border border-[#34D399]/20 transition-all focus:outline-none focus:ring-2 focus:ring-[#34D399] active:scale-95"
                       aria-label={`Mark ${incident.summary_en} as resolved`}
                     >
                       Mark resolved

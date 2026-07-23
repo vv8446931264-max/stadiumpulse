@@ -226,37 +226,52 @@ export default function StatsPage() {
           </div>
         </div>
 
-        {/* Diversity & Coverage */}
+        {/* Live Ops Metrics — what a commander actually needs to see */}
         <div className="bg-[#121A2B]/85 backdrop-blur-md rounded-xl border border-[#1e293b] p-5 shadow-lg hover:border-[#22D3EE]/25 transition-all">
           <h2 className="text-sm font-semibold text-[#CBD5E1] uppercase tracking-wider mb-4">
-            Diversity & Coverage
+            Live Ops Metrics
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-3 border-r border-[#1e293b]/50 pr-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-[#CBD5E1]">Languages detected</span>
-                <span className="text-sm font-bold text-[#22D3EE]">
-                  {sortedLangs.length}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-[#CBD5E1]">Categories covered</span>
-                <span className="text-sm font-bold text-[#22D3EE]">
-                  {new Set(incidents.map((i) => i.category)).size} / {CATEGORIES.length}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-[#CBD5E1]">Zones with incidents</span>
-                <span className="text-sm font-bold text-[#22D3EE]">
-                  {new Set(incidents.filter((i) => i.zone !== "unknown").map((i) => i.zone)).size} / {ZONES.length}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-[#CBD5E1]">High severity (4-5)</span>
-                <span className="text-sm font-bold text-red-400 animate-pulse">
-                  {incidents.filter((i) => i.severity >= 4).length}
-                </span>
-              </div>
+              {(() => {
+                const openIncidents = incidents.filter((i) => i.status === "open");
+                const critical = openIncidents.filter((i) => i.severity >= 4);
+                const oldestOpen = openIncidents
+                  .slice()
+                  .sort((a, b) => a.createdAt - b.createdAt)[0];
+                const oldestAgeMin = oldestOpen
+                  ? Math.max(0, Math.floor((Date.now() - oldestOpen.createdAt) / 60000))
+                  : 0;
+                const busiest = byZone.find((z) => z.count > 0);
+                return (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-[#CBD5E1]">Open criticals (SEV 4–5)</span>
+                      <span className={`text-sm font-bold ${critical.length > 0 ? "text-red-400 animate-pulse" : "text-[#34D399]"}`}>
+                        {critical.length}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-[#CBD5E1]">Oldest open</span>
+                      <span className="text-sm font-bold text-[#F8FAFC]">
+                        {oldestOpen ? `${oldestAgeMin}m` : "—"}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-[#CBD5E1]">Busiest zone</span>
+                      <span className="text-sm font-bold text-[#22D3EE]">
+                        {busiest ? `${busiest.label} (${busiest.count})` : "—"}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-[#CBD5E1]">Total open</span>
+                      <span className="text-sm font-bold text-[#F59E0B]">
+                        {openIncidents.length}
+                      </span>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
 
             <div className="pl-0 md:pl-2">

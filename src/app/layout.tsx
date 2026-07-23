@@ -16,36 +16,72 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "StadiumPulse — GenAI Incident Triage for FIFA World Cup 2026",
-  description:
-    "Report stadium incidents in any language. Gemini AI triages them into structured, prioritized ops intelligence in seconds.",
-  alternates: {
-    canonical: "/",
+  title: {
+    default:
+      "StadiumPulse — GenAI Incident Triage for FIFA World Cup 2026 Stadium Operations",
+    template: "%s | StadiumPulse",
   },
+  description:
+    "Fans report stadium incidents in any language — typed or spoken. Gemini 2.5 Flash triages each report in seconds; deterministic code ranks priority and lights up a live SVG stadium heat map. Built for FIFA World Cup 2026 crowd management, accessibility, transport, sustainability, and multilingual operations.",
+  applicationName: "StadiumPulse",
+  authors: [{ name: "Vivek Vishwakarma" }],
+  creator: "Vivek Vishwakarma",
+  alternates: { canonical: "/" },
   keywords: [
     "FIFA World Cup 2026",
     "stadium operations",
     "GenAI",
+    "Generative AI",
     "incident triage",
     "Gemini",
+    "Gemini 2.5 Flash",
+    "Vertex AI",
     "crowd management",
-    "multilingual",
+    "multilingual assistance",
+    "smart stadium",
+    "tournament operations",
+    "accessibility",
+    "sustainability",
+    "real-time decision support",
+    "wayfinding",
+    "PromptWars",
   ],
+  category: "technology",
   openGraph: {
-    title: "StadiumPulse — GenAI Incident Triage",
+    title: "StadiumPulse — GenAI Incident Triage for FIFA World Cup 2026",
     description:
-      "Report in any language. AI triages. Code calculates priority. Ops team responds.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+      "Report in any language. AI parses. Code calculates priority. Ops responds in seconds — with a live stadium heat map and a wayfinding assistant.",
+    url: "/",
+    siteName: "StadiumPulse",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "StadiumPulse — GenAI incident triage for FIFA World Cup 2026",
+      },
+    ],
+    locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "StadiumPulse — GenAI Incident Triage",
     description:
-      "Report in any language. AI triages. Code calculates priority.",
-    images: ["/og-image.png"],
+      "Report in any language. AI parses. Code calculates priority.",
+    images: ["/og.jpg"],
   },
-  icons: { icon: "/icon.png" },
+  icons: { icon: "/icon.png", apple: "/logo.png" },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 /** Static, compile-time structured data — no user input flows here. */
@@ -54,10 +90,22 @@ const jsonLd = {
   "@type": "SoftwareApplication",
   name: "StadiumPulse",
   applicationCategory: "BusinessApplication",
+  applicationSubCategory: "Stadium Operations",
   operatingSystem: "Web",
+  url: SITE_URL,
   description:
-    "GenAI incident triage for FIFA World Cup 2026 stadium operations. Report in any language; AI parses, code calculates priority.",
+    "GenAI incident triage for FIFA World Cup 2026 stadium operations. Fans report in any language (typed or spoken); Gemini 2.5 Flash parses, deterministic code prioritizes, and a live stadium heat map guides ops staff.",
+  featureList: [
+    "Multilingual voice + text incident reporting",
+    "AI-powered triage with confidence scoring",
+    "Live SVG stadium heat map",
+    "Wayfinding assistant for fans",
+    "Deterministic priority scoring",
+    "Self-correcting AI pipeline with Zod validation",
+  ],
   offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+  author: { "@type": "Person", name: "Vivek Vishwakarma" },
+  softwareVersion: "0.1.0",
 };
 
 export default function RootLayout({
